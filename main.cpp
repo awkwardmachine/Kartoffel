@@ -12,7 +12,7 @@ int main() {
     Window       window;
     Shader       shader;
     Renderer     renderer;
-    Mesh         triangle;
+    Mesh         quad;
     Camera       camera;
     InputManager input;
 
@@ -31,15 +31,15 @@ int main() {
         return -1;
     }
 
-    if (!triangle.CreateTriangle()) {
-        std::cerr << "Failed to create triangle" << std::endl;
+    if (!quad.CreateCube()) {
+        std::cerr << "Failed to create cube" << std::endl;
         return -1;
     }
 
     input.Initialize(window.GetNativeWindow());
     glfwSetInputMode(window.GetNativeWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     camera.SetPosition(0.0f, 0.0f, 3.0f);
-    auto model = glm::mat4(1.0f); // position triangle in world space
+    auto model = glm::mat4(1.0f); // position cube in world space
 
     while (!window.ShouldClose()) {
         Window::PollEvents();
@@ -79,7 +79,7 @@ int main() {
         glUniformMatrix4fv(view_loc, 1, GL_FALSE, &view[0][0]);
         glUniformMatrix4fv(proj_loc, 1, GL_FALSE, &projection[0][0]);
 
-        triangle.Render();
+        quad.Render();
 
         window.SwapBuffers();
     }

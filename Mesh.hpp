@@ -11,11 +11,13 @@ public:
     ~Mesh();
 
     bool CreateTriangle();
+    bool CreateQuad();
+    bool CreateCube();
     void Render() const;
     void Cleanup();
 
 private:
-    unsigned int VAO_, VBO_;
+    unsigned int VAO_, VBO_, EBO_;
     int          vertex_count_;
     bool         created_;
 };
