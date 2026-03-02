@@ -31,7 +31,20 @@ glm::mat4 Camera::GetProjectionMatrix(const float aspect_ratio) {
 
 void Camera::SetPosition(const float x, const float y, const float z) { position_ = glm::vec3(x, y, z); }
 
-void Camera::Move(const float forward, const float right) {
+void Camera::Move(const float forward, const float right, const float up) {
     position_ += front_ * forward * movement_speed_;
     position_ += right_ * right * movement_speed_;
+    position_ += up_ * up * movement_speed_;
+}
+
+void Camera::Rotate(const float yaw_offset, const float pitch_offset) {
+    yaw_ += yaw_offset * mouse_sensitivity_;
+    pitch_ += pitch_offset * mouse_sensitivity_;
+
+    if (pitch_ > 89.0f)
+        pitch_ = 89.0f;
+    if (pitch_ < -89.0f)
+        pitch_ = -89.0f;
+
+    UpdateVectors();
 }

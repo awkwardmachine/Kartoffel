@@ -16,7 +16,8 @@ public:
     [[nodiscard]] static glm::mat4 GetProjectionMatrix(float aspect_ratio);
 
     void SetPosition(float x, float y, float z);
-    void Move(float forward, float right);
+    void Move(float forward, float right, float up);
+    void Rotate(float yaw_offset, float pitch_offset);
 
 private:
     glm::vec3 position_;

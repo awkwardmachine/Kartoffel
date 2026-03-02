@@ -11,6 +11,7 @@
 int main() {
     Window       window;
     Shader       shader;
+    Renderer     renderer;
     Mesh         triangle;
     Camera       camera;
     InputManager input;
@@ -20,12 +21,10 @@ int main() {
         return -1;
     }
 
-    if (Renderer renderer; !renderer.Initialize(window.GetNativeWindow())) {
+    if (!renderer.Initialize(window.GetNativeWindow())) {
         std::cerr << "Failed to initialize renderer" << std::endl;
         return -1;
     }
-
-    input.Initialize(window.GetNativeWindow());
 
     if (!shader.LoadFromFile("Shaders/triangle.vert", "Shaders/triangle.frag")) {
         std::cerr << "Failed to load Shaders" << std::endl;
@@ -37,6 +36,8 @@ int main() {
         return -1;
     }
 
+    input.Initialize(window.GetNativeWindow());
+    glfwSetInputMode(window.GetNativeWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     camera.SetPosition(0.0f, 0.0f, 3.0f);
     auto model = glm::mat4(1.0f); // position triangle in world space
 
@@ -45,19 +46,28 @@ int main() {
         input.Update();
 
         if (input.IsKeyPressed(GLFW_KEY_W))
-            camera.Move(0.015f, 0.0f);
+            camera.Move(0.015f, 0.0f, 0.0f);
         if (input.IsKeyPressed(GLFW_KEY_S))
-            camera.Move(-0.015f, 0.0f);
+            camera.Move(-0.015f, 0.0f, 0.0f);
         if (input.IsKeyPressed(GLFW_KEY_A))
-            camera.Move(0.0f, -0.015f);
+            camera.Move(0.0f, -0.015f, 0.0f);
         if (input.IsKeyPressed(GLFW_KEY_D))
-            camera.Move(0.0f, 0.015f);
+            camera.Move(0.0f, 0.015f, 0.0f);
+        if (input.IsKeyPressed(GLFW_KEY_SPACE))
+            camera.Move(0.0f, 0.0f, 0.015f);
+        if (input.IsKeyPressed(GLFW_KEY_LEFT_CONTROL))
+            camera.Move(0.0f, 0.0f, -0.015f);
+
+        if (input.IsKeyPressed(GLFW_KEY_ESCAPE))
+            break;
+
+        camera.Rotate(static_cast<float>(input.GetMouseDeltaX()), static_cast<float>(input.GetMouseDeltaY()));
 
         Renderer::Clear(0.2f, 0.3f, 0.3f, 1.0f);
 
-        const float aspect_ratio = static_cast<float>(window.GetWidth()) / static_cast<float>(window.GetHeight());
-        glm::mat4   view         = camera.GetViewMatrix();
-        glm::mat4   projection   = Camera::GetProjectionMatrix(aspect_ratio);
+        const float aspectRatio = static_cast<float>(window.GetWidth()) / static_cast<float>(window.GetHeight());
+        glm::mat4   view        = camera.GetViewMatrix();
+        glm::mat4   projection  = Camera::GetProjectionMatrix(aspectRatio);
 
         shader.Use();
 
