@@ -15,23 +15,23 @@ FetchContent_MakeAvailable(glm)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(OpenGL REQUIRED)
 
-add_library(glad OBJECT External/glad/src/glad.c)
-target_include_directories(glad PRIVATE External/glad/include)
+add_library(glad OBJECT external/glad/src/glad.c)
+target_include_directories(glad PRIVATE external/glad/include)
 
 add_executable(Kartoffel
-        main.cpp
-        Window.cpp
-        Window.hpp
-        Renderer.cpp
-        Renderer.hpp
-        Shader.cpp
-        Shader.hpp
-        Mesh.cpp
-        Mesh.hpp
-        Camera.cpp
-        Camera.hpp
-        InputManager.cpp
-        InputManager.hpp
+        src/main.cpp
+        src/app/Window.cpp
+        src/app/Window.hpp
+        src/rendering/Renderer.cpp
+        src/rendering/Renderer.hpp
+        src/rendering/Shader.cpp
+        src/rendering/Shader.hpp
+        src/rendering/Mesh.cpp
+        src/rendering/Mesh.hpp
+        src/camera/Camera.cpp
+        src/camera/Camera.hpp
+        src/input/InputManager.cpp
+        src/input/InputManager.hpp
 )
 
 target_link_libraries(Kartoffel PRIVATE
@@ -42,12 +42,17 @@ target_link_libraries(Kartoffel PRIVATE
 )
 
 target_include_directories(Kartoffel PRIVATE
-        External/glad/include
+        external/glad/include
+        src
+        src/camera
+        src/input
+        src/rendering
+        src/app
 )
 
 add_custom_command(TARGET Kartoffel POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_CURRENT_SOURCE_DIR}/Shaders
-        $<TARGET_FILE_DIR:Kartoffel>/Shaders
+        ${CMAKE_CURRENT_SOURCE_DIR}/shaders
+        $<TARGET_FILE_DIR:Kartoffel>/shaders
         COMMENT "Copying shaders to output directory"
 )
