@@ -5,7 +5,6 @@
 #ifndef KARTOFFEL_RENDERER_HPP
 #define KARTOFFEL_RENDERER_HPP
 
-#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 class Renderer {

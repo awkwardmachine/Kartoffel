@@ -16,6 +16,8 @@ add_executable(Kartoffel
         Window.hpp
         Renderer.cpp
         Renderer.hpp
+        Shader.cpp
+        Shader.hpp
 )
 
 target_link_libraries(Kartoffel PRIVATE

@@ -3,6 +3,7 @@
 //
 
 #include <iostream>
+#include <glad/glad.h>
 #include "Renderer.hpp"
 
 Renderer::Renderer() : initialized_(false) {}
