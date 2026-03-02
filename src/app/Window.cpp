@@ -1,5 +1,7 @@
 //
-// Created by nil on 02/03/2026.
+// Created by Noah Belton (awkwardmachine) on 02/03/2026.
+// Copyright (C) 2026 Noah Belton (awkwardmachine)
+// SPDX-License-Identifier: GPL-3.0-only
 //
 
 #include "Window.hpp"
@@ -44,7 +46,7 @@ void Window::Shutdown() {
 }
 
 bool Window::ShouldClose() const { return glfwWindowShouldClose(window_); }
-void Window::PollEvents()        { glfwPollEvents(); }
+void Window::PollEvents() { glfwPollEvents(); }
 void Window::SwapBuffers() const { glfwSwapBuffers(window_); }
 
 // Query GLFW directly — avoids needing the user pointer (owned by InputManager)

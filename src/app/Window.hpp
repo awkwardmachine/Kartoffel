@@ -1,5 +1,7 @@
 //
-// Created by nil on 02/03/2026.
+// Created by Noah Belton (awkwardmachine) on 02/03/2026.
+// Copyright (C) 2026 Noah Belton (awkwardmachine)
+// SPDX-License-Identifier: GPL-3.0-only
 //
 
 #ifndef KARTOFFEL_WINDOW_HPP
@@ -19,8 +21,8 @@ public:
     static void        PollEvents();
     void               SwapBuffers() const;
 
-    [[nodiscard]] int GetWidth()  const;
-    [[nodiscard]] int GetHeight() const;
+    [[nodiscard]] int         GetWidth() const;
+    [[nodiscard]] int         GetHeight() const;
     [[nodiscard]] GLFWwindow *GetNativeWindow() const { return window_; }
 
     void               SetMouseCursorEnabled(bool enable);

@@ -1,5 +1,7 @@
 //
-// Created by nil on 02/03/2026.
+// Created by Noah Belton (awkwardmachine) on 02/03/2026.
+// Copyright (C) 2026 Noah Belton (awkwardmachine)
+// SPDX-License-Identifier: GPL-3.0-only
 //
 
 #ifndef KARTOFFEL_INPUTMANAGER_HPP
@@ -26,7 +28,6 @@ public:
     [[nodiscard]] double GetMouseDeltaX() const;
     [[nodiscard]] double GetMouseDeltaY() const;
 
-    // Call this after re-capturing the cursor to suppress the jump spike
     void ResetMouseDelta();
 
 private:
