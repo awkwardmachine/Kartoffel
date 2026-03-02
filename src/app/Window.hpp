@@ -19,14 +19,16 @@ public:
     static void        PollEvents();
     void               SwapBuffers() const;
 
-    [[nodiscard]] int         GetWidth() const { return width_; }
-    [[nodiscard]] int         GetHeight() const { return height_; }
+    [[nodiscard]] int GetWidth()  const;
+    [[nodiscard]] int GetHeight() const;
     [[nodiscard]] GLFWwindow *GetNativeWindow() const { return window_; }
+
+    void               SetMouseCursorEnabled(bool enable);
+    [[nodiscard]] bool GetMouseCursorEnabled() const { return mouse_cursor_enabled_; }
 
 private:
     GLFWwindow *window_;
-    int         width_;
-    int         height_;
+    bool        mouse_cursor_enabled_;
 
     static void FramebufferSizeCallback(GLFWwindow *window, int width, int height);
 };

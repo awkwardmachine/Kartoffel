@@ -6,14 +6,11 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
-Window::Window() : window_(nullptr), width_(0), height_(0) {}
+Window::Window() : window_(nullptr), mouse_cursor_enabled_(true) {}
 
 Window::~Window() { Shutdown(); }
 
 bool Window::Initialize(const int width, const int height, const char *title) {
-    width_  = width;
-    height_ = height;
-
     if (!glfwInit()) {
         std::cerr << "Failed to initialize GLFW\n";
         return false;
@@ -32,7 +29,8 @@ bool Window::Initialize(const int width, const int height, const char *title) {
 
     glfwMakeContextCurrent(window_);
     glfwSetFramebufferSizeCallback(window_, FramebufferSizeCallback);
-    glfwSetWindowUserPointer(window_, this);
+    // Note: we intentionally do NOT call glfwSetWindowUserPointer here.
+    // InputManager::Initialize sets it to itself so its callbacks work.
 
     return true;
 }
@@ -46,15 +44,27 @@ void Window::Shutdown() {
 }
 
 bool Window::ShouldClose() const { return glfwWindowShouldClose(window_); }
-
-void Window::PollEvents() { glfwPollEvents(); }
-
+void Window::PollEvents()        { glfwPollEvents(); }
 void Window::SwapBuffers() const { glfwSwapBuffers(window_); }
 
-void Window::FramebufferSizeCallback(GLFWwindow *window, const int width, const int height) {
+// Query GLFW directly — avoids needing the user pointer (owned by InputManager)
+int Window::GetWidth() const {
+    int w, h;
+    glfwGetWindowSize(window_, &w, &h);
+    return w;
+}
+
+int Window::GetHeight() const {
+    int w, h;
+    glfwGetWindowSize(window_, &w, &h);
+    return h;
+}
+
+void Window::SetMouseCursorEnabled(const bool enable) {
+    glfwSetInputMode(window_, GLFW_CURSOR, enable ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+    mouse_cursor_enabled_ = enable;
+}
+
+void Window::FramebufferSizeCallback(GLFWwindow * /*window*/, const int width, const int height) {
     glViewport(0, 0, width, height);
-    if (auto *win = static_cast<Window *>(glfwGetWindowUserPointer(window))) {
-        win->width_  = width;
-        win->height_ = height;
-    }
 }

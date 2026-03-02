@@ -26,17 +26,18 @@ public:
     [[nodiscard]] double GetMouseDeltaX() const;
     [[nodiscard]] double GetMouseDeltaY() const;
 
+    // Call this after re-capturing the cursor to suppress the jump spike
+    void ResetMouseDelta();
+
 private:
     static void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
     static void MouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
     static void CursorPositionCallback(GLFWwindow *window, double x_pos, double y_pos);
 
     GLFWwindow *window_{nullptr};
-    // Key States
+
     std::unordered_map<int, bool> current_key_state_;
     std::unordered_map<int, bool> prev_key_state_;
-
-    // Mouse States
     std::unordered_map<int, bool> current_mouse_state_;
     std::unordered_map<int, bool> prev_mouse_state_;
 

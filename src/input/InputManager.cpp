@@ -38,6 +38,17 @@ void InputManager::Update() {
     last_mouse_Y_ = mouse_Y_;
 }
 
+void InputManager::ResetMouseDelta() {
+    double x, y;
+    glfwGetCursorPos(window_, &x, &y);
+    mouse_X_       = x;
+    mouse_Y_       = y;
+    last_mouse_X_  = x;
+    last_mouse_Y_  = y;
+    mouse_delta_X_ = 0.0;
+    mouse_delta_Y_ = 0.0;
+}
+
 void InputManager::ShutDown() {
     window_ = nullptr;
     current_key_state_.clear();
@@ -52,23 +63,15 @@ bool InputManager::IsKeyPressed(const int key) const {
 }
 
 bool InputManager::IsKeyJustPressed(const int key) const {
-    const auto current_it = current_key_state_.find(key);
-    const auto prev_it    = prev_key_state_.find(key);
-
-    const bool currently_pressed  = (current_it != current_key_state_.end() && current_it->second);
-    const bool previously_pressed = (prev_it != prev_key_state_.end() && prev_it->second);
-
-    return currently_pressed && !previously_pressed;
+    const auto cur  = current_key_state_.find(key);
+    const auto prev = prev_key_state_.find(key);
+    return (cur != current_key_state_.end() && cur->second) && !(prev != prev_key_state_.end() && prev->second);
 }
 
 bool InputManager::IsKeyReleased(const int key) const {
-    const auto current_it = current_key_state_.find(key);
-    const auto prev_it    = prev_key_state_.find(key);
-
-    const bool currently_pressed  = (current_it != current_key_state_.end() && current_it->second);
-    const bool previously_pressed = (prev_it != prev_key_state_.end() && prev_it->second);
-
-    return !currently_pressed && previously_pressed;
+    const auto cur  = current_key_state_.find(key);
+    const auto prev = prev_key_state_.find(key);
+    return !(cur != current_key_state_.end() && cur->second) && (prev != prev_key_state_.end() && prev->second);
 }
 
 bool InputManager::IsMouseButtonPressed(const int button) const {
@@ -77,42 +80,34 @@ bool InputManager::IsMouseButtonPressed(const int button) const {
 }
 
 double InputManager::GetMouseX() const { return mouse_X_; }
-
 double InputManager::GetMouseY() const { return mouse_Y_; }
-
 double InputManager::GetMouseDeltaX() const { return mouse_delta_X_; }
-
 double InputManager::GetMouseDeltaY() const { return mouse_delta_Y_; }
 
-void InputManager::KeyCallback(GLFWwindow *window, const int key, int scancode, const int action, int mods) {
+void InputManager::KeyCallback(GLFWwindow *window, const int key, int /*scancode*/, const int action, int /*mods*/) {
     auto *input = static_cast<InputManager *>(glfwGetWindowUserPointer(window));
     if (!input)
         return;
-
-    if (action == GLFW_PRESS) {
+    if (action == GLFW_PRESS)
         input->current_key_state_[key] = true;
-    } else if (action == GLFW_RELEASE) {
+    else if (action == GLFW_RELEASE)
         input->current_key_state_[key] = false;
-    }
 }
 
-void InputManager::MouseButtonCallback(GLFWwindow *window, const int button, const int action, int mods) {
+void InputManager::MouseButtonCallback(GLFWwindow *window, const int button, const int action, int /*mods*/) {
     auto *input = static_cast<InputManager *>(glfwGetWindowUserPointer(window));
     if (!input)
         return;
-
-    if (action == GLFW_PRESS) {
+    if (action == GLFW_PRESS)
         input->current_mouse_state_[button] = true;
-    } else if (action == GLFW_RELEASE) {
+    else if (action == GLFW_RELEASE)
         input->current_mouse_state_[button] = false;
-    }
 }
 
 void InputManager::CursorPositionCallback(GLFWwindow *window, const double x_pos, const double y_pos) {
     auto *input = static_cast<InputManager *>(glfwGetWindowUserPointer(window));
     if (!input)
         return;
-
     input->mouse_X_ = x_pos;
     input->mouse_Y_ = y_pos;
 }
