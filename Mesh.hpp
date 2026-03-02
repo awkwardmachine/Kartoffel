@@ -1,0 +1,23 @@
+//
+// Created by nil on 02/03/2026.
+//
+
+#ifndef KARTOFFEL_MESH_HPP
+#define KARTOFFEL_MESH_HPP
+
+class Mesh {
+public:
+    Mesh();
+    ~Mesh();
+
+    bool CreateTriangle();
+    void Render() const;
+    void Cleanup();
+
+private:
+    unsigned int VAO_, VBO_;
+    int          vertex_count_;
+    bool         created_;
+};
+
+#endif // KARTOFFEL_MESH_HPP

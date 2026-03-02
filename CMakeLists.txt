@@ -18,6 +18,8 @@ add_executable(Kartoffel
         Renderer.hpp
         Shader.cpp
         Shader.hpp
+        Mesh.cpp
+        Mesh.hpp
 )
 
 target_link_libraries(Kartoffel PRIVATE
@@ -28,4 +30,11 @@ target_link_libraries(Kartoffel PRIVATE
 
 target_include_directories(Kartoffel PRIVATE
         External/glad/include
+)
+
+add_custom_command(TARGET Kartoffel POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/Shaders
+        $<TARGET_FILE_DIR:Kartoffel>/Shaders
+        COMMENT "Copying shaders to output directory"
 )

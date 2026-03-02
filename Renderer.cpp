@@ -2,17 +2,14 @@
 // Created by nil on 02/03/2026.
 //
 
-#include <iostream>
-#include <glad/glad.h>
 #include "Renderer.hpp"
+#include <iostream>
 
 Renderer::Renderer() : initialized_(false) {}
 
-Renderer::~Renderer() {
-    Shutdown();
-}
+Renderer::~Renderer() { Shutdown(); }
 
-bool Renderer::Initialize(const GLFWwindow* window) {
+bool Renderer::Initialize(const GLFWwindow *window) {
     if (!window) {
         std::cerr << "Renderer::Initialize() called with null window." << std::endl;
         return false;
@@ -34,9 +31,7 @@ bool Renderer::Initialize(const GLFWwindow* window) {
     return true;
 }
 
-void Renderer::Shutdown() {
-    initialized_ = false;
-}
+void Renderer::Shutdown() { initialized_ = false; }
 
 void Renderer::Clear(const float r, const float g, const float b, const float a) {
     glClearColor(r, g, b, a);

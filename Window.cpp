@@ -8,12 +8,10 @@
 
 Window::Window() : window_(nullptr), width_(0), height_(0) {}
 
-Window::~Window() {
-    Shutdown();
-}
+Window::~Window() { Shutdown(); }
 
-bool Window::Initialize(const int width, const int height, const char* title) {
-    width_ = width;
+bool Window::Initialize(const int width, const int height, const char *title) {
+    width_  = width;
     height_ = height;
 
     if (!glfwInit()) {
@@ -47,22 +45,16 @@ void Window::Shutdown() {
     glfwTerminate();
 }
 
-bool Window::ShouldClose() const {
-    return glfwWindowShouldClose(window_);
-}
+bool Window::ShouldClose() const { return glfwWindowShouldClose(window_); }
 
-void Window::PollEvents() {
-    glfwPollEvents();
-}
+void Window::PollEvents() { glfwPollEvents(); }
 
-void Window::SwapBuffers() const {
-    glfwSwapBuffers(window_);
-}
+void Window::SwapBuffers() const { glfwSwapBuffers(window_); }
 
-void Window::FramebufferSizeCallback(GLFWwindow* window, const int width, const int height) {
+void Window::FramebufferSizeCallback(GLFWwindow *window, const int width, const int height) {
     glViewport(0, 0, width, height);
-    if (auto* win = static_cast<Window*>(glfwGetWindowUserPointer(window))) {
-        win->width_ = width;
+    if (auto *win = static_cast<Window *>(glfwGetWindowUserPointer(window))) {
+        win->width_  = width;
         win->height_ = height;
     }
 }

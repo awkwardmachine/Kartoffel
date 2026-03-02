@@ -12,19 +12,20 @@ public:
     Shader();
     ~Shader();
 
-    bool LoadFromFile(const std::string& vertexPath, const std::string& fragmentPath);
+    bool LoadFromFile(const std::string &vertexPath, const std::string &fragmentPath);
     void Use() const;
     void Delete();
 
     [[nodiscard]] unsigned int GetId() const { return id_; }
+
 private:
     unsigned int id_;
-    bool loaded_;
+    bool         loaded_;
 
-    static unsigned int CompileShader(unsigned int type, const std::string& source);
-    static bool CheckCompileErrors(unsigned int shader, const std::string& type);
-    static bool CheckLinkErrors(unsigned int program);
+    static unsigned int CompileShader(unsigned int type, const std::string &source);
+    static bool         CheckCompileErrors(unsigned int shader, const std::string &type);
+    static bool         CheckLinkErrors(unsigned int program);
 };
 
 
-#endif //KARTOFFEL_SHADER_HPP
+#endif // KARTOFFEL_SHADER_HPP

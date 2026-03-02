@@ -2,22 +2,20 @@
 // Created by nil on 02/03/2026.
 //
 
-#include <glad/glad.h>
 #include <fstream>
-#include <sstream>
+#include <glad/glad.h>
 #include <iostream>
+#include <sstream>
 
 #include "Shader.hpp"
 
 Shader::Shader() : id_(0), loaded_(false) {}
 
-Shader::~Shader() {
-    Delete();
-}
+Shader::~Shader() { Delete(); }
 
-bool Shader::LoadFromFile(const std::string& vertexPath, const std::string& fragmentPath) {
-    std::string vertexCode;
-    std::string fragmentCode;
+bool Shader::LoadFromFile(const std::string &vertexPath, const std::string &fragmentPath) {
+    std::string   vertexCode;
+    std::string   fragmentCode;
     std::ifstream vertexShaderFile;
     std::ifstream fragmentShaderFile;
 
@@ -35,9 +33,9 @@ bool Shader::LoadFromFile(const std::string& vertexPath, const std::string& frag
         vertexShaderFile.close();
         fragmentShaderFile.close();
 
-        vertexCode = vertexShaderStream.str();
+        vertexCode   = vertexShaderStream.str();
         fragmentCode = fragmentShaderStream.str();
-    } catch (std::ifstream::failure& e) {
+    } catch (std::ifstream::failure &e) {
         std::cout << "ERROR: Shader file not successfully read: " << e.what() << std::endl;
         return false;
     }
@@ -45,10 +43,12 @@ bool Shader::LoadFromFile(const std::string& vertexPath, const std::string& frag
     unsigned int vertex, fragment;
 
     vertex = CompileShader(GL_VERTEX_SHADER, vertexCode);
-    if (!vertex) return false;
+    if (!vertex)
+        return false;
 
     fragment = CompileShader(GL_FRAGMENT_SHADER, fragmentCode);
-    if (!fragment) return false;
+    if (!fragment)
+        return false;
 
     id_ = glCreateProgram();
     glAttachShader(id_, vertex);
@@ -68,21 +68,19 @@ bool Shader::LoadFromFile(const std::string& vertexPath, const std::string& frag
     return true;
 }
 
-void Shader::Use() const {
-    glUseProgram(id_);
-}
+void Shader::Use() const { glUseProgram(id_); }
 
 void Shader::Delete() {
     if (id_) {
         glDeleteProgram(id_);
-        id_ = 0;
+        id_     = 0;
         loaded_ = false;
     }
 }
 
-unsigned int Shader::CompileShader(const unsigned int type, const std::string& source) {
+unsigned int Shader::CompileShader(const unsigned int type, const std::string &source) {
     const unsigned int shader = glCreateShader(type);
-    const char* src = source.c_str();
+    const char        *src    = source.c_str();
     glShaderSource(shader, 1, &src, nullptr);
     glCompileShader(shader);
 
@@ -94,8 +92,8 @@ unsigned int Shader::CompileShader(const unsigned int type, const std::string& s
     return shader;
 }
 
-bool Shader::CheckCompileErrors(const unsigned int shader, const std::string& type) {
-    int success;
+bool Shader::CheckCompileErrors(const unsigned int shader, const std::string &type) {
+    int  success;
     char infoLog[1024];
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
 
@@ -108,7 +106,7 @@ bool Shader::CheckCompileErrors(const unsigned int shader, const std::string& ty
 }
 
 bool Shader::CheckLinkErrors(const unsigned int program) {
-    int success;
+    int  success;
     char infoLog[1024];
     glGetProgramiv(program, GL_LINK_STATUS, &success);
 
