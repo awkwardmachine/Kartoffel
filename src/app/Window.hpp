@@ -18,6 +18,7 @@ public:
     void Shutdown();
 
     [[nodiscard]] bool ShouldClose() const;
+    void               SetShouldClose(bool close) const;
     static void        PollEvents();
     void               SwapBuffers() const;
 

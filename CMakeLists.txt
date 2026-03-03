@@ -48,6 +48,21 @@ add_executable(Kartoffel
         src/camera/Camera.hpp
         src/input/InputManager.cpp
         src/input/InputManager.hpp
+        src/ecs/World.cpp
+        src/ecs/World.hpp
+        src/ecs/Entity.cpp
+        src/ecs/Entity.hpp
+        src/ecs/ComponentArray.hpp
+        src/ecs/ComponentArray.inl
+        src/ecs/ComponentRegistry.cpp
+        src/ecs/ComponentRegistry.hpp
+        src/ecs/ComponentRegistry.inl
+        src/ecs/System.hpp
+        src/ecs/Components.hpp
+        src/ecs/systems/InputSystem.hpp
+        src/ecs/systems/RenderSystem.hpp
+        src/ecs/systems/InputSystem.cpp
+        src/ecs/systems/RenderSystem.cpp
 )
 
 target_link_libraries(Kartoffel PRIVATE
@@ -65,6 +80,8 @@ target_include_directories(Kartoffel PRIVATE
         src/input
         src/rendering
         src/app
+        src/ecs
+        src/ecs/systems
 )
 
 add_custom_command(TARGET Kartoffel POST_BUILD

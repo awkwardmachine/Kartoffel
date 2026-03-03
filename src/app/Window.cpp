@@ -31,8 +31,6 @@ bool Window::Initialize(const int width, const int height, const char *title) {
 
     glfwMakeContextCurrent(window_);
     glfwSetFramebufferSizeCallback(window_, FramebufferSizeCallback);
-    // Note: we intentionally do NOT call glfwSetWindowUserPointer here.
-    // InputManager::Initialize sets it to itself so its callbacks work.
 
     return true;
 }
@@ -46,10 +44,12 @@ void Window::Shutdown() {
 }
 
 bool Window::ShouldClose() const { return glfwWindowShouldClose(window_); }
+void Window::SetShouldClose(const bool close) const {
+    glfwSetWindowShouldClose(window_, close ? GLFW_TRUE : GLFW_FALSE);
+}
 void Window::PollEvents() { glfwPollEvents(); }
 void Window::SwapBuffers() const { glfwSwapBuffers(window_); }
 
-// Query GLFW directly — avoids needing the user pointer (owned by InputManager)
 int Window::GetWidth() const {
     int w, h;
     glfwGetWindowSize(window_, &w, &h);

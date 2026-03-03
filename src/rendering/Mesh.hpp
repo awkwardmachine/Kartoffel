@@ -18,6 +18,11 @@ public:
     void Render() const;
     void Cleanup();
 
+    [[nodiscard]] unsigned int GetVAO() const { return VAO_; }
+    [[nodiscard]] unsigned int GetVBO() const { return VBO_; }
+    [[nodiscard]] unsigned int GetEBO() const { return EBO_; }
+    [[nodiscard]] int          GetVertexCount() const { return vertex_count_; }
+
 private:
     unsigned int VAO_, VBO_, EBO_;
     int          vertex_count_;
