@@ -15,6 +15,23 @@ Shader::Shader() : id_(0), loaded_(false) {}
 
 Shader::~Shader() { Delete(); }
 
+Shader::Shader(Shader &&other) noexcept
+    : id_(other.id_), loaded_(other.loaded_) {
+    other.id_     = 0;
+    other.loaded_ = false;
+}
+
+Shader &Shader::operator=(Shader &&other) noexcept {
+    if (this != &other) {
+        Delete();
+        id_           = other.id_;
+        loaded_       = other.loaded_;
+        other.id_     = 0;
+        other.loaded_ = false;
+    }
+    return *this;
+}
+
 bool Shader::LoadFromFile(const std::string &vertexPath, const std::string &fragmentPath) {
     std::string   vertexCode;
     std::string   fragmentCode;

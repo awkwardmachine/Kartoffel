@@ -46,6 +46,11 @@ public:
     }
 
     template<typename T>
+    const T &GetComponent(const Entity entity) const {
+        return components_.Get<T>(entity);
+    }
+
+    template<typename T>
     [[nodiscard]] bool HasComponent(const Entity entity) const {
         return components_.Has<T>(entity);
     }

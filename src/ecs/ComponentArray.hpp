@@ -7,8 +7,9 @@
 #ifndef KARTOFFEL_COMPONENTARRAY_HPP
 #define KARTOFFEL_COMPONENTARRAY_HPP
 
-#include <array>
+#include <cassert>
 #include <unordered_map>
+#include <vector>
 
 #include "Entity.hpp"
 
@@ -24,14 +25,15 @@ public:
     void Insert(Entity entity, T component);
     void Remove(Entity entity);
 
-    T &Get(Entity entity);
+    T       &Get(Entity entity);
+    const T &Get(Entity entity) const;
 
     [[nodiscard]] bool Has(Entity entity) const;
 
     void EntityDestroyed(Entity entity) override;
 
 private:
-    std::array<T, MAX_ENTITIES>        components_{};
+    std::vector<T>                     components_{};
     std::unordered_map<Entity, size_t> entity_to_index_{};
     std::unordered_map<size_t, Entity> index_to_entity_{};
     size_t                             size_{0};

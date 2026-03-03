@@ -44,3 +44,19 @@ std::shared_ptr<ComponentArray<T>> ComponentRegistry::GetArray() {
     assert(arrays_.contains(type) && "Component type not registered");
     return std::static_pointer_cast<ComponentArray<T>>(arrays_[type]);
 }
+
+template<typename T>
+const T &ComponentRegistry::Get(Entity entity) const {
+    const auto type = std::type_index(typeid(T));
+    auto       it   = arrays_.find(type);
+    assert(it != arrays_.end() && "Component type not registered");
+    return std::static_pointer_cast<ComponentArray<T>>(it->second)->Get(entity);
+}
+
+template<typename T>
+std::shared_ptr<ComponentArray<T>> ComponentRegistry::GetArray() const {
+    const auto type = std::type_index(typeid(T));
+    auto       it   = arrays_.find(type);
+    assert(it != arrays_.end() && "Component type not registered");
+    return std::static_pointer_cast<ComponentArray<T>>(it->second);
+}

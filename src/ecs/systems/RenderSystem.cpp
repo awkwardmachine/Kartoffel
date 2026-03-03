@@ -30,11 +30,11 @@ void RenderSystem::Update(World &world, float dt) {
     glm::mat4 view       = glm::lookAt(cam.position, cam.position + cam.front, cam.up);
     glm::mat4 projection = glm::perspective(glm::radians(cam.fov), aspect, 0.1f, 100.0f);
 
-    for (const Entity e: world.Query<TransformComponent, MeshComponent, ShaderComponent, TextureComponent>()) {
+    for (const Entity e: world.Query<TransformComponent, MeshComponent, ShaderComponent>()) {
         const auto &[position, rotation, scale] = world.GetComponent<TransformComponent>(e);
-        const MeshComponent &mesh               = world.GetComponent<MeshComponent>(e);
-        const auto &[id]                        = world.GetComponent<ShaderComponent>(e);
-        const TextureComponent &tex             = world.GetComponent<TextureComponent>(e);
+        const MeshComponent   &mesh             = world.GetComponent<MeshComponent>(e);
+        const ShaderComponent &shd              = world.GetComponent<ShaderComponent>(e);
+        const unsigned int     id               = shd.id;
 
         auto model = glm::mat4(1.0f);
         model      = glm::translate(model, position);
@@ -43,12 +43,19 @@ void RenderSystem::Update(World &world, float dt) {
         model      = glm::rotate(model, rotation.z, glm::vec3(0, 0, 1));
         model      = glm::scale(model, scale);
 
-        glActiveTexture(GL_TEXTURE0 + tex.slot);
-        glBindTexture(GL_TEXTURE_2D, tex.id);
-
         glUseProgram(id);
 
-        glUniform1i(glGetUniformLocation(id, "uTexture"), static_cast<int>(tex.slot));
+        const bool has_tex = world.HasComponent<TextureComponent>(e);
+        glUniform1i(glGetUniformLocation(id, "uHasTexture"), has_tex ? 1 : 0);
+        if (has_tex) {
+            const TextureComponent &tex = world.GetComponent<TextureComponent>(e);
+            glActiveTexture(GL_TEXTURE0 + tex.slot);
+            glBindTexture(GL_TEXTURE_2D, tex.id);
+            glUniform1i(glGetUniformLocation(id, "uTexture"), static_cast<int>(tex.slot));
+        }
+
+        glUniform3f(glGetUniformLocation(id, "uLightPos"), 4.0f, 6.0f, 4.0f);
+        glUniform3fv(glGetUniformLocation(id, "uViewPos"), 1, &cam.position[0]);
         glUniformMatrix4fv(glGetUniformLocation(id, "model"), 1, GL_FALSE, &model[0][0]);
         glUniformMatrix4fv(glGetUniformLocation(id, "view"), 1, GL_FALSE, &view[0][0]);
         glUniformMatrix4fv(glGetUniformLocation(id, "projection"), 1, GL_FALSE, &projection[0][0]);
