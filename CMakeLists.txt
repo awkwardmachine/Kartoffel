@@ -40,8 +40,6 @@ add_executable(Kartoffel
         src/rendering/Renderer.hpp
         src/rendering/Shader.cpp
         src/rendering/Shader.hpp
-        src/rendering/Mesh.cpp
-        src/rendering/Mesh.hpp
         src/rendering/Texture.cpp
         src/rendering/Texture.hpp
         src/camera/Camera.cpp
@@ -63,6 +61,10 @@ add_executable(Kartoffel
         src/ecs/systems/RenderSystem.hpp
         src/ecs/systems/InputSystem.cpp
         src/ecs/systems/RenderSystem.cpp
+        src/ecs/MeshFactory.cpp
+        src/ecs/MeshFactory.hpp
+        src/ecs/systems/MeshCleanupSystem.cpp
+        src/ecs/systems/MeshCleanupSystem.hpp
 )
 
 target_link_libraries(Kartoffel PRIVATE

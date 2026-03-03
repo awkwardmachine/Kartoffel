@@ -8,15 +8,16 @@
 #include <iostream>
 
 #include "InputManager.hpp"
-#include "Mesh.hpp"
 #include "Renderer.hpp"
 #include "Shader.hpp"
 #include "Texture.hpp"
 #include "Window.hpp"
 
 #include "ecs/Components.hpp"
+#include "ecs/MeshFactory.hpp"
 #include "ecs/World.hpp"
 #include "ecs/systems/InputSystem.hpp"
+#include "ecs/systems/MeshCleanupSystem.hpp"
 #include "ecs/systems/RenderSystem.hpp"
 
 int main() {
@@ -35,16 +36,10 @@ int main() {
     }
 
     Shader  shader;
-    Mesh    cube;
     Texture texture;
 
     if (!shader.LoadFromFile("shaders/triangle.vert", "shaders/triangle.frag")) {
         std::cerr << "Failed to load shaders" << std::endl;
-        return -1;
-    }
-
-    if (!cube.CreateCube()) {
-        std::cerr << "Failed to create cube" << std::endl;
         return -1;
     }
 
@@ -67,24 +62,18 @@ int main() {
 
     world.RegisterSystem<InputSystem>(&input, &window);
     world.RegisterSystem<RenderSystem>(&window);
+    world.RegisterSystem<MeshCleanupSystem>();
 
-    // Camera entity
     const Entity camera_entity = world.CreateEntity();
     world.AddComponent<CameraComponent>(camera_entity, CameraComponent{});
 
-    // Cube entity
     const Entity cube_entity = world.CreateEntity();
     world.AddComponent<TransformComponent>(cube_entity, TransformComponent{});
-    world.AddComponent<MeshComponent>(cube_entity, MeshComponent{
-                                                           .vao          = cube.GetVAO(),
-                                                           .vbo          = cube.GetVBO(),
-                                                           .ebo          = cube.GetEBO(),
-                                                           .vertex_count = cube.GetVertexCount(),
-                                                           .use_indices  = true,
-                                                   });
+    world.AddComponent<MeshComponent>(cube_entity, MeshFactory::Create(MeshType::Cube));
     world.AddComponent<ShaderComponent>(cube_entity, ShaderComponent{.id = shader.GetId()});
     world.AddComponent<TextureComponent>(cube_entity, TextureComponent{.id = texture.GetId(), .slot = 0});
 
+    // Main loop
     while (!window.ShouldClose()) {
         Window::PollEvents();
         world.UpdateSystems(0.0f);
