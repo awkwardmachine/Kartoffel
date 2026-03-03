@@ -7,6 +7,8 @@
 #ifndef KARTOFFEL_INPUTSYSTEM_HPP
 #define KARTOFFEL_INPUTSYSTEM_HPP
 
+#include <string>
+
 #include "Components.hpp"
 #include "System.hpp"
 
@@ -16,13 +18,15 @@ class World;
 
 class InputSystem : public System {
 public:
-    InputSystem(InputManager *input, Window *window);
+    InputSystem(InputManager *input, Window *window, std::string scene_path);
 
     void Update(World &world, float dt) override;
 
 private:
     InputManager *input_;
     Window       *window_;
+    std::string   scene_path_;
+    bool          f5_was_pressed_ = false;
 
     static void UpdateCameraVectors(CameraComponent &cam);
 };

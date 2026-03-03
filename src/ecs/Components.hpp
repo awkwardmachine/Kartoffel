@@ -7,6 +7,7 @@
 #ifndef KARTOFFEL_COMPONENTS_HPP
 #define KARTOFFEL_COMPONENTS_HPP
 
+#include <string>
 #include <glm/glm.hpp>
 
 struct TransformComponent {
@@ -21,6 +22,12 @@ struct MeshComponent {
     unsigned int ebo{0};
     int          vertex_count{0};
     bool         use_indices{false};
+};
+
+struct ModelComponent {
+    std::string kasset_path;
+    std::string vert_shader = "shaders/triangle.vert";
+    std::string frag_shader = "shaders/triangle.frag";
 };
 
 struct ShaderComponent {

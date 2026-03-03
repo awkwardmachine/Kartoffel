@@ -28,6 +28,9 @@ public:
     T &Get(Entity entity);
 
     template<typename T>
+    const T &Get(Entity entity) const;
+
+    template<typename T>
     [[nodiscard]] bool Has(Entity entity) const;
 
     void EntityDestroyed(Entity entity);
@@ -37,6 +40,9 @@ private:
 
     template<typename T>
     std::shared_ptr<ComponentArray<T>> GetArray();
+
+    template<typename T>
+    std::shared_ptr<ComponentArray<T>> GetArray() const;
 };
 
 #include "ComponentRegistry.inl"

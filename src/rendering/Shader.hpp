@@ -6,19 +6,26 @@
 
 #ifndef KARTOFFEL_SHADER_HPP
 #define KARTOFFEL_SHADER_HPP
-#include <string>
 
+#include <string>
 
 class Shader {
 public:
     Shader();
     ~Shader();
 
+    // Move-only — copying a shader program makes no sense
+    Shader(Shader &&other) noexcept;
+    Shader &operator=(Shader &&other) noexcept;
+    Shader(const Shader &)            = delete;
+    Shader &operator=(const Shader &) = delete;
+
     bool LoadFromFile(const std::string &vertexPath, const std::string &fragmentPath);
     void Use() const;
     void Delete();
 
-    [[nodiscard]] unsigned int GetId() const { return id_; }
+    [[nodiscard]] unsigned int GetId()      const { return id_; }
+    [[nodiscard]] bool         IsLoaded()   const { return loaded_; }
 
 private:
     unsigned int id_;
@@ -28,6 +35,5 @@ private:
     static bool         CheckCompileErrors(unsigned int shader, const std::string &type);
     static bool         CheckLinkErrors(unsigned int program);
 };
-
 
 #endif // KARTOFFEL_SHADER_HPP

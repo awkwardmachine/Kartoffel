@@ -15,7 +15,11 @@ void ComponentArray<T>::Insert(const Entity entity, T component) {
     size_t index             = size_++;
     entity_to_index_[entity] = index;
     index_to_entity_[index]  = entity;
-    components_[index]       = std::move(component);
+
+    if (index >= components_.size())
+        components_.resize(index + 1);
+
+    components_[index] = std::move(component);
 }
 
 template<typename T>
@@ -41,12 +45,18 @@ T &ComponentArray<T>::Get(const Entity entity) {
 }
 
 template<typename T>
+const T &ComponentArray<T>::Get(const Entity entity) const {
+    assert(entity_to_index_.contains(entity) && "Component not found for entity");
+    return components_[entity_to_index_.at(entity)];
+}
+
+template<typename T>
 bool ComponentArray<T>::Has(const Entity entity) const {
     return entity_to_index_.contains(entity);
 }
 
 template<typename T>
-void ComponentArray<T>::EntityDestroyed(Entity entity) {
+void ComponentArray<T>::EntityDestroyed(const Entity entity) {
     if (Has(entity))
         Remove(entity);
 }
