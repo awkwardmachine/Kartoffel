@@ -139,7 +139,7 @@ struct BoxColliderComponent {
 struct CollisionInfo {
     Entity    other;
     glm::vec3 normal;
-    t         penetration;
+    float     penetration;
     bool      is_trigger;
 };
 
