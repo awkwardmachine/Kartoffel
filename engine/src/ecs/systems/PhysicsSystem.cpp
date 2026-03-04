@@ -25,7 +25,7 @@ void PhysicsSystem::Update(World &world, const float dt) {
 }
 
 void PhysicsSystem::UpdateAABBs(World &world) {
-    for (const Entity e : world.Query<TransformComponent, BoxColliderComponent>()) {
+    for (const Entity e: world.Query<TransformComponent, BoxColliderComponent>()) {
         const auto &tf  = world.GetComponent<TransformComponent>(e);
         auto       &col = world.GetComponent<BoxColliderComponent>(e);
 
@@ -38,34 +38,38 @@ void PhysicsSystem::UpdateAABBs(World &world) {
 }
 
 void PhysicsSystem::Integrate(World &world, const float dt) const {
-    for (const Entity e : world.Query<TransformComponent, RigidBodyComponent>()) {
-        auto &tf  = world.GetComponent<TransformComponent>(e);
-        auto &rb  = world.GetComponent<RigidBodyComponent>(e);
+    for (const Entity e: world.Query<TransformComponent, RigidBodyComponent>()) {
+        auto &tf = world.GetComponent<TransformComponent>(e);
+        auto &rb = world.GetComponent<RigidBodyComponent>(e);
 
-        if (rb.mass <= 0.0f) continue;
+        if (rb.mass <= 0.0f)
+            continue;
 
         if (rb.use_gravity)
             rb.acceleration += gravity;
 
-        rb.velocity  += rb.acceleration * dt;
-        rb.velocity  *= std::pow(rb.linear_drag, dt);
-        tf.position  += rb.velocity * dt;
+        rb.velocity += rb.acceleration * dt;
+        rb.velocity *= std::pow(rb.linear_drag, dt);
+        tf.position += rb.velocity * dt;
 
         rb.acceleration = glm::vec3{0.0f};
     }
 }
 
 std::vector<std::pair<Entity, Entity>> PhysicsSystem::BroadPhase(World &world) {
-    struct Proxy { Entity entity; float min_x; float max_x; };
+    struct Proxy {
+        Entity entity;
+        float  min_x;
+        float  max_x;
+    };
     std::vector<Proxy> proxies;
 
-    for (const Entity e : world.Query<BoxColliderComponent>()) {
+    for (const Entity e: world.Query<BoxColliderComponent>()) {
         const auto &col = world.GetComponent<BoxColliderComponent>(e);
         proxies.push_back({e, col.world_min.x, col.world_max.x});
     }
 
-    std::ranges::sort(proxies,
-              [](const Proxy &a, const Proxy &b) { return a.min_x < b.min_x; });
+    std::ranges::sort(proxies, [](const Proxy &a, const Proxy &b) { return a.min_x < b.min_x; });
 
     std::vector<std::pair<Entity, Entity>> pairs;
     for (size_t i = 0; i < proxies.size(); ++i) {
@@ -87,13 +91,14 @@ std::vector<std::pair<Entity, Entity>> PhysicsSystem::BroadPhase(World &world) {
     return pairs;
 }
 
-bool PhysicsSystem::NarrowPhase(const BoxColliderComponent &a,
-                                 const BoxColliderComponent &b,
-                                 CollisionInfo              &out_a,
-                                 CollisionInfo              &out_b) {
-    if (a.world_max.x < b.world_min.x || a.world_min.x > b.world_max.x) return false;
-    if (a.world_max.y < b.world_min.y || a.world_min.y > b.world_max.y) return false;
-    if (a.world_max.z < b.world_min.z || a.world_min.z > b.world_max.z) return false;
+bool PhysicsSystem::NarrowPhase(const BoxColliderComponent &a, const BoxColliderComponent &b, CollisionInfo &out_a,
+                                CollisionInfo &out_b) {
+    if (a.world_max.x < b.world_min.x || a.world_min.x > b.world_max.x)
+        return false;
+    if (a.world_max.y < b.world_min.y || a.world_min.y > b.world_max.y)
+        return false;
+    if (a.world_max.z < b.world_min.z || a.world_min.z > b.world_max.z)
+        return false;
 
     const float ox = std::min(a.world_max.x, b.world_max.x) - std::max(a.world_min.x, b.world_min.x);
     const float oy = std::min(a.world_max.y, b.world_max.y) - std::max(a.world_min.y, b.world_min.y);
@@ -119,15 +124,12 @@ bool PhysicsSystem::NarrowPhase(const BoxColliderComponent &a,
 
     const bool trigger = a.is_trigger || b.is_trigger;
 
-    out_a = {NULL_ENTITY, normal,  penetration, trigger};
+    out_a = {NULL_ENTITY, normal, penetration, trigger};
     out_b = {NULL_ENTITY, -normal, penetration, trigger};
     return true;
 }
 
-void PhysicsSystem::Resolve(World              &world,
-                             const Entity        ea,
-                             const Entity        eb,
-                             const CollisionInfo &info_a) {
+void PhysicsSystem::Resolve(World &world, const Entity ea, const Entity eb, const CollisionInfo &info_a) {
     if (const bool is_trigger = info_a.is_trigger; !is_trigger) {
         const bool a_movable = world.HasComponent<RigidBodyComponent>(ea) &&
                                world.GetComponent<RigidBodyComponent>(ea).mass > 0.0f &&
@@ -136,9 +138,8 @@ void PhysicsSystem::Resolve(World              &world,
                                world.GetComponent<RigidBodyComponent>(eb).mass > 0.0f &&
                                !world.GetComponent<RigidBodyComponent>(eb).is_kinematic;
 
-        const float total_inv_mass =
-            (a_movable ? 1.0f / world.GetComponent<RigidBodyComponent>(ea).mass : 0.0f) +
-            (b_movable ? 1.0f / world.GetComponent<RigidBodyComponent>(eb).mass : 0.0f);
+        const float total_inv_mass = (a_movable ? 1.0f / world.GetComponent<RigidBodyComponent>(ea).mass : 0.0f) +
+                                     (b_movable ? 1.0f / world.GetComponent<RigidBodyComponent>(eb).mass : 0.0f);
 
         if (total_inv_mass > 0.0f) {
             constexpr float slop       = 0.005f;
@@ -147,23 +148,24 @@ void PhysicsSystem::Resolve(World              &world,
             const glm::vec3 push       = depth / total_inv_mass * correction * info_a.normal;
 
             if (a_movable) {
-                auto &tf = world.GetComponent<TransformComponent>(ea);
+                auto       &tf  = world.GetComponent<TransformComponent>(ea);
                 const float inv = 1.0f / world.GetComponent<RigidBodyComponent>(ea).mass;
                 tf.position += push * inv;
             }
             if (b_movable) {
-                auto &tf = world.GetComponent<TransformComponent>(eb);
+                auto       &tf  = world.GetComponent<TransformComponent>(eb);
                 const float inv = 1.0f / world.GetComponent<RigidBodyComponent>(eb).mass;
                 tf.position -= push * inv;
             }
 
-            const glm::vec3 &n   = info_a.normal;
-            const glm::vec3   va = a_movable ? world.GetComponent<RigidBodyComponent>(ea).velocity : glm::vec3{0.0f};
-            const glm::vec3   vb = b_movable ? world.GetComponent<RigidBodyComponent>(eb).velocity : glm::vec3{0.0f};
-            const glm::vec3   rv = va - vb;
+            const glm::vec3 &n  = info_a.normal;
+            const glm::vec3  va = a_movable ? world.GetComponent<RigidBodyComponent>(ea).velocity : glm::vec3{0.0f};
+            const glm::vec3  vb = b_movable ? world.GetComponent<RigidBodyComponent>(eb).velocity : glm::vec3{0.0f};
+            const glm::vec3  rv = va - vb;
 
             const float vel_along_normal = glm::dot(rv, n);
-            if (vel_along_normal > 0.0f) return;
+            if (vel_along_normal > 0.0f)
+                return;
 
             const float e = (a_movable ? world.GetComponent<RigidBodyComponent>(ea).restitution : 0.0f) *
                             (b_movable ? world.GetComponent<RigidBodyComponent>(eb).restitution : 1.0f);
@@ -181,21 +183,26 @@ void PhysicsSystem::Resolve(World              &world,
         }
     }
 
-    CollisionInfo for_a = info_a;    for_a.other = eb;
-    CollisionInfo for_b = info_a;    for_b.normal = -info_a.normal; for_b.other = ea;
+    CollisionInfo for_a = info_a;
+    for_a.other         = eb;
+    CollisionInfo for_b = info_a;
+    for_b.normal        = -info_a.normal;
+    for_b.other         = ea;
 
     if (world.HasComponent<ScriptComponent>(ea)) {
-        if (auto &sc = world.GetComponent<ScriptComponent>(ea); sc.on_collision) sc.on_collision(ea, world, for_a);
+        if (auto &sc = world.GetComponent<ScriptComponent>(ea); sc.on_collision)
+            sc.on_collision(ea, world, for_a);
     }
     if (world.HasComponent<ScriptComponent>(eb)) {
-        if (auto &sc = world.GetComponent<ScriptComponent>(eb); sc.on_collision) sc.on_collision(eb, world, for_b);
+        if (auto &sc = world.GetComponent<ScriptComponent>(eb); sc.on_collision)
+            sc.on_collision(eb, world, for_b);
     }
 }
 
 void PhysicsSystem::DetectAndResolve(World &world) {
     const auto pairs = BroadPhase(world);
 
-    for (const auto &[ea, eb] : pairs) {
+    for (const auto &[ea, eb]: pairs) {
         const auto &ca = world.GetComponent<BoxColliderComponent>(ea);
         const auto &cb = world.GetComponent<BoxColliderComponent>(eb);
 

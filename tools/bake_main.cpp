@@ -13,7 +13,8 @@ namespace fs = std::filesystem;
 
 int main(const int argc, char *argv[]) {
 #ifdef KARTOFFEL_SOURCE_DIR
-    const fs::path src_dir = (argc > 1) ? fs::path(argv[1]) : fs::path(KARTOFFEL_SOURCE_DIR) / "game" / "assets" / "models";
+    const fs::path src_dir =
+            (argc > 1) ? fs::path(argv[1]) : fs::path(KARTOFFEL_SOURCE_DIR) / "game" / "assets" / "models";
     const fs::path dst_dir = (argc > 2) ? fs::path(argv[2]) : fs::path(KARTOFFEL_BUILD_DIR) / "assets" / "models";
 #else
     const fs::path src_dir = (argc > 1) ? fs::path(argv[1]) : fs::path("game/assets/models");

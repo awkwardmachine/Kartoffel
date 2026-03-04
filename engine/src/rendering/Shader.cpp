@@ -15,8 +15,7 @@ Shader::Shader() : id_(0), loaded_(false) {}
 
 Shader::~Shader() { Delete(); }
 
-Shader::Shader(Shader &&other) noexcept
-    : id_(other.id_), loaded_(other.loaded_) {
+Shader::Shader(Shader &&other) noexcept : id_(other.id_), loaded_(other.loaded_) {
     other.id_     = 0;
     other.loaded_ = false;
 }

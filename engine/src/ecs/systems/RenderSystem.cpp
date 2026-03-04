@@ -22,9 +22,7 @@
 
 RenderSystem::RenderSystem(Window *window) : window_(window) {}
 
-static GLint Loc(const GLuint prog, const std::string &name) {
-    return glGetUniformLocation(prog, name.c_str());
-}
+static GLint Loc(const GLuint prog, const std::string &name) { return glGetUniformLocation(prog, name.c_str()); }
 
 void RenderSystem::Update(World &world, float /*dt*/) {
     Renderer::Clear(0.6196f, 0.8784f, 1.0f, 1.0f);
@@ -33,9 +31,8 @@ void RenderSystem::Update(World &world, float /*dt*/) {
     if (cameras.empty())
         return;
 
-    const CameraComponent &cam = world.GetComponent<CameraComponent>(cameras[0]);
-    const float aspect = static_cast<float>(window_->GetWidth()) /
-                         static_cast<float>(window_->GetHeight());
+    const CameraComponent &cam    = world.GetComponent<CameraComponent>(cameras[0]);
+    const float            aspect = static_cast<float>(window_->GetWidth()) / static_cast<float>(window_->GetHeight());
 
     const glm::mat4 view       = glm::lookAt(cam.position, cam.position + cam.front, cam.up);
     const glm::mat4 projection = glm::perspective(glm::radians(cam.fov), aspect, 0.1f, 500.0f);
@@ -54,8 +51,9 @@ void RenderSystem::Update(World &world, float /*dt*/) {
     };
 
     std::vector<GpuLight> lights;
-    for (const Entity le : world.Query<LightComponent>()) {
-        if (constexpr int MAX_LIGHTS = 8; static_cast<int>(lights.size()) >= MAX_LIGHTS) break;
+    for (const Entity le: world.Query<LightComponent>()) {
+        if (constexpr int MAX_LIGHTS = 8; static_cast<int>(lights.size()) >= MAX_LIGHTS)
+            break;
 
         const LightComponent &lc = world.GetComponent<LightComponent>(le);
 
@@ -77,23 +75,23 @@ void RenderSystem::Update(World &world, float /*dt*/) {
     }
     const int light_count = static_cast<int>(lights.size());
 
-    for (const Entity e : world.Query<TransformComponent, MeshComponent, ShaderComponent>()) {
+    for (const Entity e: world.Query<TransformComponent, MeshComponent, ShaderComponent>()) {
         const auto &[position, rotation, scale] = world.GetComponent<TransformComponent>(e);
         const MeshComponent   &mesh             = world.GetComponent<MeshComponent>(e);
         const ShaderComponent &shd              = world.GetComponent<ShaderComponent>(e);
         const GLuint           id               = shd.id;
 
         auto model = glm::mat4(1.0f);
-        model = glm::translate(model, position);
-        model = glm::rotate(model, rotation.x, glm::vec3(1, 0, 0));
-        model = glm::rotate(model, rotation.y, glm::vec3(0, 1, 0));
-        model = glm::rotate(model, rotation.z, glm::vec3(0, 0, 1));
-        model = glm::scale(model, scale);
+        model      = glm::translate(model, position);
+        model      = glm::rotate(model, rotation.x, glm::vec3(1, 0, 0));
+        model      = glm::rotate(model, rotation.y, glm::vec3(0, 1, 0));
+        model      = glm::rotate(model, rotation.z, glm::vec3(0, 0, 1));
+        model      = glm::scale(model, scale);
 
         glUseProgram(id);
 
-        glUniformMatrix4fv(Loc(id, "model"),      1, GL_FALSE, glm::value_ptr(model));
-        glUniformMatrix4fv(Loc(id, "view"),       1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(Loc(id, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        glUniformMatrix4fv(Loc(id, "view"), 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(Loc(id, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
         glUniform3fv(Loc(id, "uViewPos"), 1, glm::value_ptr(cam.position));
 
@@ -109,17 +107,17 @@ void RenderSystem::Update(World &world, float /*dt*/) {
         glUniform1i(Loc(id, "uLightCount"), light_count);
         for (int i = 0; i < light_count; ++i) {
             const std::string base = "uLights[" + std::to_string(i) + "].";
-            const GpuLight   &gl  = lights[i];
-            glUniform1i (Loc(id, base + "type"),        gl.type);
-            glUniform3fv(Loc(id, base + "color"),       1, glm::value_ptr(gl.color));
-            glUniform1f (Loc(id, base + "intensity"),   gl.intensity);
-            glUniform3fv(Loc(id, base + "position"),    1, glm::value_ptr(gl.position));
-            glUniform3fv(Loc(id, base + "direction"),   1, glm::value_ptr(gl.direction));
-            glUniform1f (Loc(id, base + "constant"),    gl.constant);
-            glUniform1f (Loc(id, base + "linear"),      gl.linear);
-            glUniform1f (Loc(id, base + "quadratic"),   gl.quadratic);
-            glUniform1f (Loc(id, base + "innerCutoff"), gl.innerCutoff);
-            glUniform1f (Loc(id, base + "outerCutoff"), gl.outerCutoff);
+            const GpuLight   &gl   = lights[i];
+            glUniform1i(Loc(id, base + "type"), gl.type);
+            glUniform3fv(Loc(id, base + "color"), 1, glm::value_ptr(gl.color));
+            glUniform1f(Loc(id, base + "intensity"), gl.intensity);
+            glUniform3fv(Loc(id, base + "position"), 1, glm::value_ptr(gl.position));
+            glUniform3fv(Loc(id, base + "direction"), 1, glm::value_ptr(gl.direction));
+            glUniform1f(Loc(id, base + "constant"), gl.constant);
+            glUniform1f(Loc(id, base + "linear"), gl.linear);
+            glUniform1f(Loc(id, base + "quadratic"), gl.quadratic);
+            glUniform1f(Loc(id, base + "innerCutoff"), gl.innerCutoff);
+            glUniform1f(Loc(id, base + "outerCutoff"), gl.outerCutoff);
         }
 
         glBindVertexArray(mesh.vao);

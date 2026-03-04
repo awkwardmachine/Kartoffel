@@ -23,8 +23,8 @@ public:
     void Use() const;
     void Delete();
 
-    [[nodiscard]] unsigned int GetId()      const { return id_; }
-    [[nodiscard]] bool         IsLoaded()   const { return loaded_; }
+    [[nodiscard]] unsigned int GetId() const { return id_; }
+    [[nodiscard]] bool         IsLoaded() const { return loaded_; }
 
 private:
     unsigned int id_;

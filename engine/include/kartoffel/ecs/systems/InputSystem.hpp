@@ -27,13 +27,11 @@ private:
     Window       *window_;
     std::string   scene_path_;
 
-    // edge-detect state for one-shot key actions
     bool f5_was_pressed_ = false;
     bool r_was_pressed_  = false;
 
     static void UpdateCameraVectors(CameraComponent &cam);
 
-    // Destroys all non-camera entities and re-loads the scene from disk.
     void HotReloadScene(World &world) const;
 };
 

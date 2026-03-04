@@ -75,11 +75,11 @@ void InputSystem::Update(World &world, const float dt) {
 
 void InputSystem::HotReloadScene(World &world) const {
     std::vector<Entity> to_destroy;
-    for (const Entity e : world.Entities()) {
+    for (const Entity e: world.Entities()) {
         if (!world.HasComponent<CameraComponent>(e))
             to_destroy.push_back(e);
     }
-    for (const Entity e : to_destroy)
+    for (const Entity e: to_destroy)
         world.DestroyEntity(e);
 
     AssetManager::EvictAll();

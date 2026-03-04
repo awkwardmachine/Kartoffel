@@ -27,19 +27,12 @@ namespace Kartoffel {
         explicit Application(AppConfig config = {});
         virtual ~Application() = default;
 
-        // Entry point — call this from main().
         int Run();
 
-        // -----------------------------------------------------------------------
-        // Override these in your game
-        // -----------------------------------------------------------------------
         virtual void OnInit() {}
         virtual void OnUpdate(float dt) {}
         virtual void OnShutdown() {}
 
-        // -----------------------------------------------------------------------
-        // Engine services available to your game
-        // -----------------------------------------------------------------------
         World        &GetWorld() { return world_; }
         Window       &GetWindow() { return window_; }
         InputManager &GetInput() { return input_; }

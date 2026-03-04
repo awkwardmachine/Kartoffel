@@ -74,7 +74,7 @@ namespace Kartoffel {
         double last_time = glfwGetTime();
         while (!window_.ShouldClose()) {
             const double now = glfwGetTime();
-            const auto  dt  = static_cast<float>(now - last_time);
+            const auto   dt  = static_cast<float>(now - last_time);
             last_time        = now;
 
             Window::PollEvents();

@@ -31,12 +31,7 @@ public:
     static bool                    BakeToKAsset(const std::string &src_path, const std::string &dst_path);
     static bool                    LoadKAsset(const std::string &path, KAsset &out);
 
-    // Compute a tight-fitting BoxColliderComponent by scanning all vertex
-    // positions in a .kasset file.  Returns a collider with half_extents and
-    // offset set to exactly wrap the mesh; all other fields left at defaults.
     static BoxColliderComponent ComputeAABB(const std::string &kasset_path);
-
-    // Overload for procedural mesh types (no file needed).
     static BoxColliderComponent ComputeAABB(MeshType type);
 
 private:

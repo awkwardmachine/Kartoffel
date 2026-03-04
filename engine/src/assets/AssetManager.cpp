@@ -70,7 +70,7 @@ void AssetManager::EvictMesh(const std::string &path) {
 
 void AssetManager::EvictAll() {
     AssetManager &self = Instance();
-    for (auto &[key, cache] : self.mesh_cache_)
+    for (auto &[key, cache]: self.mesh_cache_)
         FreeMeshCache(cache);
     self.mesh_cache_.clear();
     std::cout << "[AssetManager] Evicted all mesh caches.\n";

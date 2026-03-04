@@ -903,30 +903,33 @@ BoxColliderComponent MeshFactory::ComputeAABB(const std::string &kasset_path) {
         return BoxColliderComponent{};
     }
 
-    float min_x =  std::numeric_limits<float>::max();
-    float min_y =  std::numeric_limits<float>::max();
-    float min_z =  std::numeric_limits<float>::max();
+    float min_x = std::numeric_limits<float>::max();
+    float min_y = std::numeric_limits<float>::max();
+    float min_z = std::numeric_limits<float>::max();
     float max_x = -std::numeric_limits<float>::max();
     float max_y = -std::numeric_limits<float>::max();
     float max_z = -std::numeric_limits<float>::max();
 
-    for (const auto &mesh : asset.meshes) {
-        for (const auto &v : mesh.vertices) {
-            min_x = std::min(min_x, v.x); max_x = std::max(max_x, v.x);
-            min_y = std::min(min_y, v.y); max_y = std::max(max_y, v.y);
-            min_z = std::min(min_z, v.z); max_z = std::max(max_z, v.z);
+    for (const auto &mesh: asset.meshes) {
+        for (const auto &v: mesh.vertices) {
+            min_x = std::min(min_x, v.x);
+            max_x = std::max(max_x, v.x);
+            min_y = std::min(min_y, v.y);
+            max_y = std::max(max_y, v.y);
+            min_z = std::min(min_z, v.z);
+            max_z = std::max(max_z, v.z);
         }
     }
 
     const glm::vec3 half_extents = {
-        (max_x - min_x) * 0.5f,
-        (max_y - min_y) * 0.5f,
-        (max_z - min_z) * 0.5f,
+            (max_x - min_x) * 0.5f,
+            (max_y - min_y) * 0.5f,
+            (max_z - min_z) * 0.5f,
     };
     const glm::vec3 offset = {
-        (max_x + min_x) * 0.5f,
-        (max_y + min_y) * 0.5f,
-        (max_z + min_z) * 0.5f,
+            (max_x + min_x) * 0.5f,
+            (max_y + min_y) * 0.5f,
+            (max_z + min_z) * 0.5f,
     };
 
     return BoxColliderComponent{.half_extents = half_extents, .offset = offset};
@@ -934,8 +937,10 @@ BoxColliderComponent MeshFactory::ComputeAABB(const std::string &kasset_path) {
 
 BoxColliderComponent MeshFactory::ComputeAABB(const MeshType type) {
     switch (type) {
-        case MeshType::Cube: return BoxColliderComponent{.half_extents = {0.5f, 0.5f, 0.5f}};
-        case MeshType::Quad: return BoxColliderComponent{.half_extents = {0.5f, 0.5f, 0.0f}};
+        case MeshType::Cube:
+            return BoxColliderComponent{.half_extents = {0.5f, 0.5f, 0.5f}};
+        case MeshType::Quad:
+            return BoxColliderComponent{.half_extents = {0.5f, 0.5f, 0.0f}};
     }
     return BoxColliderComponent{};
 }

@@ -30,7 +30,7 @@ void World::ShutdownSystems() {
 
 std::vector<Entity> World::FindByTag(const std::string &tag) const {
     std::vector<Entity> result;
-    for (const Entity e : entities_.All()) {
+    for (const Entity e: entities_.All()) {
         if (HasComponent<TagComponent>(e) && GetComponent<TagComponent>(e).HasTag(tag))
             result.push_back(e);
     }
@@ -38,7 +38,7 @@ std::vector<Entity> World::FindByTag(const std::string &tag) const {
 }
 
 Entity World::FindByName(const std::string &name) const {
-    for (const Entity e : entities_.All()) {
+    for (const Entity e: entities_.All()) {
         if (HasComponent<TagComponent>(e) && GetComponent<TagComponent>(e).name == name)
             return e;
     }
