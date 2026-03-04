@@ -26,14 +26,27 @@ public:
 
 private:
     static void UpdateAABBs(World &world);
+    static void UpdateSphereBounds(World &world);
     void        Integrate(World &world, float dt) const;
 
     static void DetectAndResolve(World &world);
 
     static std::vector<std::pair<Entity, Entity>> BroadPhase(World &world);
 
-    static bool NarrowPhase(const BoxColliderComponent &a, const BoxColliderComponent &b, CollisionInfo &out_a,
-                            CollisionInfo &out_b);
+    // Box vs Box
+    static bool NarrowPhase(const BoxColliderComponent    &a,
+                             const BoxColliderComponent    &b,
+                             CollisionInfo &out_a, CollisionInfo &out_b);
+
+    // Sphere vs Sphere
+    static bool NarrowPhase(const SphereColliderComponent &a,
+                             const SphereColliderComponent &b,
+                             CollisionInfo &out_a, CollisionInfo &out_b);
+
+    // Sphere vs Box  (a = sphere, b = box)
+    static bool NarrowPhase(const SphereColliderComponent &a,
+                             const BoxColliderComponent    &b,
+                             CollisionInfo &out_a, CollisionInfo &out_b);
 
     static void Resolve(World &world, Entity ea, Entity eb, const CollisionInfo &info_a);
 };

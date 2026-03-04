@@ -2,7 +2,7 @@ light {
     name      "FillLight"
     tags      "light" "point"
     type      point
-    color     1.0000 0.6000 0.2000
+    color     1.0000 1.0000 1.0000
     intensity 1.0000
     position  3.0000 2.0000 2.0000
     constant  1.0000

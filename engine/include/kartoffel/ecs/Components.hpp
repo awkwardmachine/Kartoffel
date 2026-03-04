@@ -136,6 +136,18 @@ struct BoxColliderComponent {
     glm::vec3 world_max{0.0f};
 };
 
+struct SphereColliderComponent {
+    float     radius     = 0.5f;
+    glm::vec3 offset{0.0f};
+
+    bool           is_trigger = false;
+    CollisionLayer layer      = LAYER_DEFAULT;
+    CollisionLayer mask       = LAYER_ALL;
+
+    // World-space centre, updated each frame by PhysicsSystem
+    glm::vec3 world_center{0.0f};
+};
+
 struct CollisionInfo {
     Entity    other;
     glm::vec3 normal;

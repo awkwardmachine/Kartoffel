@@ -6,11 +6,10 @@
 
 #include "kartoffel/ecs/systems/RenderSystem.hpp"
 
-#include <algorithm>
-#include <string>
 #include <cmath>
+#include <string>
+#include <iostream>
 
-#include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -20,9 +19,73 @@
 #include "kartoffel/rendering/Renderer.hpp"
 #include "kartoffel/app/Window.hpp"
 
+struct alignas(16) FrameUBOData {
+    glm::mat4 view;
+    glm::mat4 projection;
+    glm::vec4 view_pos;
+};
+
+struct alignas(16) GpuLight {
+    glm::vec4 color_intensity;
+    glm::vec4 position_type;
+    glm::vec4 direction_pad;
+    glm::vec4 attenuation;
+    glm::vec4 cutoffs;
+};
+
+struct alignas(16) LightsUBOData {
+    GpuLight lights[RenderSystem::MAX_LIGHTS];
+    int      count;
+    float    _pad[3];
+};
+
 RenderSystem::RenderSystem(Window *window) : window_(window) {}
 
-static GLint Loc(const GLuint prog, const std::string &name) { return glGetUniformLocation(prog, name.c_str()); }
+void RenderSystem::Init(World & /*world*/) { CreateUBOs(); }
+
+void RenderSystem::CreateUBOs() {
+    glGenBuffers(1, &ubo_frame_);
+    glBindBuffer(GL_UNIFORM_BUFFER, ubo_frame_);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(FrameUBOData), nullptr, GL_DYNAMIC_DRAW);
+    glBindBufferBase(GL_UNIFORM_BUFFER, UBO_FRAME_BP, ubo_frame_);
+
+    glGenBuffers(1, &ubo_lights_);
+    glBindBuffer(GL_UNIFORM_BUFFER, ubo_lights_);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(LightsUBOData), nullptr, GL_DYNAMIC_DRAW);
+    glBindBufferBase(GL_UNIFORM_BUFFER, UBO_LIGHTS_BP, ubo_lights_);
+
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+void RenderSystem::UploadFrameUBO(const FrameUBOData &data) const {
+    glBindBuffer(GL_UNIFORM_BUFFER, ubo_frame_);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(FrameUBOData), &data);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+void RenderSystem::UploadLightsUBO(const LightsUBOData &data) const {
+    glBindBuffer(GL_UNIFORM_BUFFER, ubo_lights_);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(LightsUBOData), &data);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+void RenderSystem::BindShaderUBOBlocks(const GLuint prog) {
+    if (const GLuint frame_idx = glGetUniformBlockIndex(prog, "FrameUBO"); frame_idx != GL_INVALID_INDEX)
+        glUniformBlockBinding(prog, frame_idx, UBO_FRAME_BP);
+    else
+        std::cerr << "[RenderSystem] shader " << prog << " missing 'FrameUBO' block\n";
+
+    if (const GLuint lights_idx = glGetUniformBlockIndex(prog, "LightsUBO"); lights_idx != GL_INVALID_INDEX)
+        glUniformBlockBinding(prog, lights_idx, UBO_LIGHTS_BP);
+    else
+        std::cerr << "[RenderSystem] shader " << prog << " missing 'LightsUBO' block\n";
+}
+
+void RenderSystem::Shutdown(World & /*world*/) {
+    glDeleteBuffers(1, &ubo_frame_);
+    glDeleteBuffers(1, &ubo_lights_);
+    ubo_frame_ = ubo_lights_ = 0;
+}
 
 void RenderSystem::Update(World &world, float /*dt*/) {
     Renderer::Clear(0.6196f, 0.8784f, 1.0f, 1.0f);
@@ -34,47 +97,40 @@ void RenderSystem::Update(World &world, float /*dt*/) {
     const CameraComponent &cam    = world.GetComponent<CameraComponent>(cameras[0]);
     const float            aspect = static_cast<float>(window_->GetWidth()) / static_cast<float>(window_->GetHeight());
 
-    const glm::mat4 view       = glm::lookAt(cam.position, cam.position + cam.front, cam.up);
-    const glm::mat4 projection = glm::perspective(glm::radians(cam.fov), aspect, 0.1f, 500.0f);
+    // FrameUBO
+    FrameUBOData frame{};
+    frame.view       = glm::lookAt(cam.position, cam.position + cam.front, cam.up);
+    frame.projection = glm::perspective(glm::radians(cam.fov), aspect, 0.1f, 500.0f);
+    frame.view_pos   = glm::vec4(cam.position, 0.0f);
+    UploadFrameUBO(frame);
 
-    struct GpuLight {
-        int       type;
-        glm::vec3 color;
-        float     intensity;
-        glm::vec3 position;
-        glm::vec3 direction;
-        float     constant;
-        float     linear;
-        float     quadratic;
-        float     innerCutoff;
-        float     outerCutoff;
-    };
+    // LightsUBO
+    LightsUBOData lights_data{};
+    lights_data.count = 0;
 
-    std::vector<GpuLight> lights;
     for (const Entity le: world.Query<LightComponent>()) {
-        if (constexpr int MAX_LIGHTS = 8; static_cast<int>(lights.size()) >= MAX_LIGHTS)
+        if (lights_data.count >= MAX_LIGHTS)
             break;
 
         const LightComponent &lc = world.GetComponent<LightComponent>(le);
+        auto &[color_intensity, position_type, direction_pad, attenuation, cutoffs] =
+                lights_data.lights[lights_data.count++];
 
-        GpuLight gl{};
-        gl.type        = static_cast<int>(lc.type);
-        gl.color       = lc.color;
-        gl.intensity   = lc.intensity;
-        gl.direction   = glm::normalize(lc.direction);
-        gl.constant    = lc.constant;
-        gl.linear      = lc.linear;
-        gl.quadratic   = lc.quadratic;
-        gl.innerCutoff = std::cos(glm::radians(lc.inner_cutoff_deg));
-        gl.outerCutoff = std::cos(glm::radians(lc.outer_cutoff_deg));
+        color_intensity = glm::vec4(lc.color, lc.intensity);
+        direction_pad   = glm::vec4(glm::normalize(lc.direction), 0.0f);
+        attenuation     = glm::vec4(lc.constant, lc.linear, lc.quadratic, 0.0f);
+        cutoffs = glm::vec4(std::cos(glm::radians(lc.inner_cutoff_deg)), std::cos(glm::radians(lc.outer_cutoff_deg)),
+                            0.0f, 0.0f);
 
+        glm::vec3 pos{0.0f};
         if (world.HasComponent<TransformComponent>(le))
-            gl.position = world.GetComponent<TransformComponent>(le).position;
+            pos = world.GetComponent<TransformComponent>(le).position;
 
-        lights.push_back(gl);
+        position_type = glm::vec4(pos, static_cast<float>(static_cast<int>(lc.type)));
     }
-    const int light_count = static_cast<int>(lights.size());
+    UploadLightsUBO(lights_data);
 
+    // Draw Mesh
     for (const Entity e: world.Query<TransformComponent, MeshComponent, ShaderComponent>()) {
         const auto &[position, rotation, scale] = world.GetComponent<TransformComponent>(e);
         const MeshComponent   &mesh             = world.GetComponent<MeshComponent>(e);
@@ -90,34 +146,17 @@ void RenderSystem::Update(World &world, float /*dt*/) {
 
         glUseProgram(id);
 
-        glUniformMatrix4fv(Loc(id, "model"), 1, GL_FALSE, glm::value_ptr(model));
-        glUniformMatrix4fv(Loc(id, "view"), 1, GL_FALSE, glm::value_ptr(view));
-        glUniformMatrix4fv(Loc(id, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-        glUniform3fv(Loc(id, "uViewPos"), 1, glm::value_ptr(cam.position));
+        BindShaderUBOBlocks(id);
+
+        glUniformMatrix4fv(glGetUniformLocation(id, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
         const bool has_tex = world.HasComponent<TextureComponent>(e);
-        glUniform1i(Loc(id, "uHasTexture"), has_tex ? 1 : 0);
+        glUniform1i(glGetUniformLocation(id, "uHasTexture"), has_tex ? 1 : 0);
         if (has_tex) {
             const TextureComponent &tex = world.GetComponent<TextureComponent>(e);
             glActiveTexture(GL_TEXTURE0 + tex.slot);
             glBindTexture(GL_TEXTURE_2D, tex.id);
-            glUniform1i(Loc(id, "uTexture"), static_cast<int>(tex.slot));
-        }
-
-        glUniform1i(Loc(id, "uLightCount"), light_count);
-        for (int i = 0; i < light_count; ++i) {
-            const std::string base = "uLights[" + std::to_string(i) + "].";
-            const GpuLight   &gl   = lights[i];
-            glUniform1i(Loc(id, base + "type"), gl.type);
-            glUniform3fv(Loc(id, base + "color"), 1, glm::value_ptr(gl.color));
-            glUniform1f(Loc(id, base + "intensity"), gl.intensity);
-            glUniform3fv(Loc(id, base + "position"), 1, glm::value_ptr(gl.position));
-            glUniform3fv(Loc(id, base + "direction"), 1, glm::value_ptr(gl.direction));
-            glUniform1f(Loc(id, base + "constant"), gl.constant);
-            glUniform1f(Loc(id, base + "linear"), gl.linear);
-            glUniform1f(Loc(id, base + "quadratic"), gl.quadratic);
-            glUniform1f(Loc(id, base + "innerCutoff"), gl.innerCutoff);
-            glUniform1f(Loc(id, base + "outerCutoff"), gl.outerCutoff);
+            glUniform1i(glGetUniformLocation(id, "uTexture"), static_cast<int>(tex.slot));
         }
 
         glBindVertexArray(mesh.vao);

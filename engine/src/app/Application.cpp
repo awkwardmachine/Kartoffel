@@ -33,6 +33,7 @@ namespace Kartoffel {
         world_.RegisterComponent<LightComponent>();
         world_.RegisterComponent<RigidBodyComponent>();
         world_.RegisterComponent<BoxColliderComponent>();
+        world_.RegisterComponent<SphereColliderComponent>();
         world_.RegisterComponent<ScriptComponent>();
     }
 
