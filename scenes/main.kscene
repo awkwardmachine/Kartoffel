@@ -1,7 +1,0 @@
-entity {
-    model    "models/monkey.kasset"
-    shader   "shaders/triangle.vert" "shaders/triangle.frag"
-    position 0.0000 0.0000 0.0000
-    rotation 0.0000 0.0000 0.0000
-    scale    1.0000 1.0000 1.0000
-}
